@@ -11,6 +11,6 @@ npm install
 npm start
 
 FRONTEND
-cd frontend
+cd frontend /n
 npm install 
 npm start
