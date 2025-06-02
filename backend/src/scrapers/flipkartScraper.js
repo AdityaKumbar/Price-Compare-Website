@@ -5,7 +5,7 @@ const scrapeFlipkart = async (query) => {
   if (!query) throw new Error("Missing search query");
 
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -60,7 +60,7 @@ const scrapeFlipkart = async (query) => {
 
     document.querySelectorAll('div[data-id]').forEach((el) => {
       const name = el.querySelector('div.KzDlHZ')?.textContent.trim() || null; // Updated selector for product name
-      const price = el.querySelector('div.Nx9bqj')?.textContent.trim() || null; // Updated selector for product price
+      const price = el.querySelector('div.Nx9bqj._4b5DiR')?.textContent.trim() || null; // Updated selector for product price
       const image = el.querySelector('img.DByuf4')?.getAttribute('src') || null; // Updated selector for product image
       const link = el.querySelector('a.CGtC98')?.href || null; // Updated selector for product link
 

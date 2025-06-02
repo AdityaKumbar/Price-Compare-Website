@@ -14,6 +14,15 @@ const categoryPlatforms = {
   travel: ['croma'],
 };
 
+const getCategoryFromPlatform = (platform) => {
+  for (const [category, platforms] of Object.entries(categoryPlatforms)) {
+    if (platforms.includes(platform)) {
+      return category;
+    }
+  }
+  return 'products'; // default category
+};
+
 const CategoryView = () => {
   const { platform } = useParams();
   const navigate = useNavigate();
@@ -74,6 +83,7 @@ const CategoryView = () => {
           return data.map((product) => handleMissingData(product, platformName));
         })
       );
+      console.log('Fetched data:', allResults.flat()); // Log the fetched data for debugging
       setProducts(allResults.flat());
     } catch (err) {
       setError(err.message);
@@ -166,7 +176,10 @@ const CategoryView = () => {
         {processedProducts.map((product, index) => (
           <div key={index} className="product-with-platform">
             <ProductCard
-              product={product}
+              product={{
+                ...product,
+                category: getCategoryFromPlatform(platform)
+              }}
               onAddToComparison={() => handleAddToComparison(product)}
             />
             <p className="platform-name">Platform: {product.platform || 'Unknown'}</p>

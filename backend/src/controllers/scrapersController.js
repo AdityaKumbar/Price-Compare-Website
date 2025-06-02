@@ -86,64 +86,69 @@ const scrapeSwiggy = async (req, res) => {
 
 const searchAllPlatforms = async (req, res) => {
   try {
-    const query = req.query.q;
-    if (!query) return res.status(400).json({ message: 'Query parameter is required' });
+    const { platform, query } = req.query;
 
-    console.log('Searching all platforms for query:', query);
+    console.log('=== searchAllPlatforms Called ===');
+    console.log('Platform:', platform);
+    console.log('Query:', query);
 
-    // Search all platforms in parallel    const results = await Promise.allSettled([
-      amazonScraper(query).catch(err => {
-        console.error('Amazon scraper error:', err);
-        return [];
-      }),
-      flipkartScraper(query).catch(err => {
+    if (!query) {
+      return res.status(400).json({ message: 'Missing search query' });
+    }
+
+    let results = [];
+
+    if (platform === 'amazon') {
+      // If the clicked product is from Amazon, search Flipkart
+      results = await flipkartScraper(query).catch(err => {
         console.error('Flipkart scraper error:', err);
         return [];
-      }),
-      myntraScraper(query).catch(err => {
-        console.error('Myntra scraper error:', err);
+      });
+    } else if (platform === 'flipkart') {
+      // If the clicked product is from Flipkart, search Amazon
+      results = await amazonScraper(query).catch(err => {
+        console.error('Amazon scraper error:', err);
         return [];
-      }),
-      cromaScraper(query).catch(err => {
-        console.error('Croma scraper error:', err);
-        return [];
-      }),
-      nykaaScraper(query).catch(err => {
+      });
+    } else if (platform === 'myntra') {
+      // If the clicked product is from Myntra (beauty), search Nykaa
+      console.log('Beauty: Clicked Myntra, scraping Nykaa');
+      results = await nykaaScraper(query).catch(err => {
         console.error('Nykaa scraper error:', err);
         return [];
-      })
-        return [];
-      }),
-      myntraScraper(query).catch(err => {
+      });
+    } else if (platform === 'nykaa') {
+      // If the clicked product is from Nykaa (beauty), search Myntra
+      console.log('Beauty: Clicked Nykaa, scraping Myntra');
+      results = await myntraScraper(query).catch(err => {
         console.error('Myntra scraper error:', err);
         return [];
-      }),
-      nykaaScraper(query).catch(err => {
+      });
+    } else if (platform === 'beauty') {
+      // (Legacy) If the clicked product is from the Beauty category, search both Myntra and Nykaa
+      console.log('Legacy beauty block: scraping both Myntra and Nykaa');
+      const myntraResults = await myntraScraper(query).catch(err => {
+        console.error('Myntra scraper error:', err);
+        return [];
+      });
+      const nykaaResults = await nykaaScraper(query).catch(err => {
         console.error('Nykaa scraper error:', err);
         return [];
-      }),
-      cromaScraper(query).catch(err => {
-        console.error('Croma scraper error:', err);
-        return [];
-      })
-    ]);
+      });
+      results = [...myntraResults, ...nykaaResults];
+    } else {
+      console.log('Unsupported platform:', platform);
+      return res.status(400).json({ message: 'Unsupported platform' });
+    }
 
-    const platformResults = {
-      amazon: results[0].status === 'fulfilled' ? results[0].value : [],
-      flipkart: results[1].status === 'fulfilled' ? results[1].value : [],
-      myntra: results[2].status === 'fulfilled' ? results[2].value : [],
-      nykaa: results[3].status === 'fulfilled' ? results[3].value : [],
-      croma: results[4].status === 'fulfilled' ? results[4].value : []
-    };
-
-    console.log('Results from all platforms:', platformResults);
-
-    res.status(200).json(platformResults);
+    console.log('Scraping results:', results);
+    res.status(200).json({ otherPlatform: results });
   } catch (error) {
-    console.error('Error in searchAllPlatforms:', error);
-    res.status(500).json({ message: 'Error searching across platforms', error: error.message });
+    console.error('Comparison error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 module.exports = {
   scrapeNykaa,

@@ -27,15 +27,9 @@ const scrapeNykaa = async (query) => {
   // Check for login modal and close it if it appears
   try {
     await page.waitForSelector('.login-modal', { timeout: 5000 });
-    console.log('Login modal detected. Attempting to close it.');
-
-    // Capture a screenshot before closing the login modal
-    await page.screenshot({ path: 'nykaa_debug_before_login.png', fullPage: true });
-
-    await page.click('.login-modal .close-button');
-
-    // Capture a screenshot after attempting to close the login modal
-    await page.screenshot({ path: 'nykaa_debug_after_login.png', fullPage: true });
+    console.log('Login modal detected. Attempting to close it with Escape key.');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(1500); // Wait for modal to close
   } catch (error) {
     console.log('No login modal detected.');
   }
@@ -51,57 +45,20 @@ const scrapeNykaa = async (query) => {
   // Capture a screenshot after navigating to the product page
   await page.screenshot({ path: 'nykaa_debug_product_page.png', fullPage: true });
 
-  // Wait for product cards to load
-  try {
-    await page.waitForSelector('.css-12zjr3s', { timeout: 10000 }); // Adjusted selector for product cards
-    console.log('Product cards loaded successfully.');
-  } catch (error) {
-    console.log('Product cards did not load within the timeout period.');
-  }
-
-  // Debugging log to inspect the DOM structure
-  const domStructure = await page.evaluate(() => document.body.innerHTML);
-  console.log('DOM Structure Snippet:', domStructure.slice(0, 2000)); // Log a larger snippet of the DOM structure
-
-  // Debugging log to verify product card presence
-  const productCards = await page.evaluate(() => document.querySelectorAll('.css-12zjr3s').length);
-  console.log('Number of product cards detected:', productCards);
-
-  // Scroll the page multiple times to trigger lazy loading
-  for (let i = 0; i < 5; i++) {
-    await page.evaluate(() => {
-      window.scrollBy(0, window.innerHeight);
-    });
-    await new Promise(resolve => setTimeout(resolve, 3000)); // Increased wait time for images to load
-  }
+  // Adjust the selector to match the correct product container
+  await page.waitForSelector('.css-qlopj4', { timeout: 15000 });
 
   // Scrape product cards
   const products = await page.evaluate(() => {
     const items = [];
 
-    document.querySelectorAll('.css-d5z3ro').forEach((el) => {
-      const name = el.querySelector('.css-1rd7vky')?.innerText || 'No name';
-      const price = el.querySelector('.css-111z9ua')?.innerText || 'No price';
-      const imageTag = el.querySelector('.css-43m2vm img');
-      const image = imageTag?.getAttribute('src') ||
-                    imageTag?.getAttribute('data-src') ||
-                    imageTag?.getAttribute('srcset')?.split(' ')[0] || null; // Check for additional attributes
+    document.querySelectorAll('.css-qlopj4').forEach((el) => {
+      const name = el.querySelector('.css-xrzmfa')?.innerText.trim() || 'No name';
+      const price = el.querySelector('.css-111z9ua')?.innerText.trim() || 'No price';
+      const image = el.querySelector('img.css-11gn9r6')?.src || 'No image';
+      const link = el.href || 'No link';
 
-      // Ensure the image URL is absolute
-      const absoluteImage = image && image.startsWith('http') ? image : (image ? `https://www.nykaa.com${image}` : null);
-
-      // Debugging log for missing images
-      if (!absoluteImage) {
-        console.log('Missing image for product:', {
-          name,
-          price,
-          imageTag: imageTag?.outerHTML
-        });
-      }
-
-      const link = el.querySelector('.css-qlopj4')?.href || null;
-
-      items.push({ name, price, image: absoluteImage, link });
+      items.push({ name, price, image, link });
     });
 
     return items;

@@ -29,33 +29,21 @@ const scrapeMyntra = async (query) => {
   // Add a delay outside the page.evaluate function to ensure images are loaded
   await new Promise(resolve => setTimeout(resolve, 3000));
 
+  // Adjust the selector to match the correct product container
+  await page.waitForSelector('.product-base', { timeout: 15000 });
+
+  // Scrape product cards
   const products = await page.evaluate(() => {
     const items = [];
 
     document.querySelectorAll('.product-base').forEach((el) => {
-      const name = el.querySelector('.product-brand')?.innerText.trim() + ' ' +
-                   el.querySelector('.product-product')?.innerText.trim() || 'No name'; // Combine brand and product name
+      const name = el.querySelector('.product-product')?.innerText.trim() || 'No name';
+      const brand = el.querySelector('.product-brand')?.innerText.trim() || 'No brand';
+      const price = el.querySelector('.product-discountedPrice')?.innerText.trim() || 'No price';
+      const image = el.querySelector('img')?.src || 'No image';
+      const link = el.querySelector('a')?.href || 'No link';
 
-      const price = el.querySelector('.product-discountedPrice')?.innerText || 'No price';
-
-      const pictureTag = el.querySelector('picture');
-      const imgTag = pictureTag?.querySelector('img');
-      const sourceTag = pictureTag?.querySelector('source');
-
-      const image = imgTag?.getAttribute('src') ||
-                    sourceTag?.getAttribute('srcset')?.split(' ')[0] || null; // Extract from `src` or `srcset`
-
-      // Ensure the image URL is absolute
-      const absoluteImage = image && image.startsWith('http') ? image : (image ? `https://www.myntra.com${image}` : null);
-
-      // Debugging log for image extraction
-      if (!absoluteImage) {
-        console.log('Picture tag attributes:', pictureTag?.outerHTML);
-      }
-
-      const link = el.querySelector('a')?.href || '';
-
-      items.push({ name, price, image: absoluteImage, link });
+      items.push({ name: `${brand} ${name}`, price, image, link });
     });
 
     return items;

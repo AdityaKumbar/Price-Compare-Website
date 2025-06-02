@@ -45,15 +45,28 @@ export const searchSwiggy = async (location) => {
   }
 };
 
-// Search across all platforms
-export const searchAllPlatforms = async (query) => {
+// Search across all platforms (now: only the other platform)
+export const searchAllPlatforms = async (query, platform) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/scrapers/search-all`, {
-      params: { q: query },
+      params: { query, platform },
     });
     return response.data;
   } catch (error) {
     console.error('Error searching across platforms:', error);
+    throw error;
+  }
+};
+
+export const fetchProductsByCategory = async (category) => {
+  try {
+    const response = await fetch(`/api/products?category=${category}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch products');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching products by category:', error);
     throw error;
   }
 };

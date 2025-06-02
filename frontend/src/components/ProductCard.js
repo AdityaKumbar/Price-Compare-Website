@@ -1,74 +1,44 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { searchAllPlatforms } from '../services/api';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleViewProduct = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Extract key terms for better matching across platforms
-      const searchTerms = product.name
-        .toLowerCase()
-        .match(/iphone \d+(?:e)?|(?:\d+)\s*gb|black|blue|teal/g) || [];
-      
-      const searchQuery = searchTerms.join(' ');
-      console.log('Searching with terms:', searchQuery);
+  const handleViewProduct = () => {
+    console.log('=== Compare Prices Clicked ===');
+    console.log('Product Details:', {
+      name: product.name,
+      platform: product.platform,
+      category: product.category,
+      price: product.price
+    });
 
-      // Fetch prices from all platforms
-      const allPlatformData = await searchAllPlatforms(searchQuery);
-      console.log('Received platform data:', allPlatformData);      // Filter and match products based on key terms
-      const matchedProducts = {
-        amazon: allPlatformData.amazon?.filter(p => 
-          searchTerms.every(term => p.name.toLowerCase().includes(term))
-        )?.[0],
-        flipkart: allPlatformData.flipkart?.filter(p => 
-          searchTerms.every(term => p.name.toLowerCase().includes(term))
-        )?.[0],
-        myntra: allPlatformData.myntra?.filter(p => 
-          searchTerms.every(term => p.name.toLowerCase().includes(term))
-        )?.[0],
-        croma: allPlatformData.croma?.filter(p => 
-          searchTerms.every(term => p.name.toLowerCase().includes(term))
-        )?.[0],
-        nykaa: allPlatformData.nykaa?.filter(p => 
-          searchTerms.every(term => p.name.toLowerCase().includes(term))
-        )?.[0]
-      };      // Combine the data
-      const combinedData = {
-        ...product,
-        platform: product.platform || 'unknown',
-        originalPrice: product.price,
-        originalLink: product.link,
-        amazonPrice: matchedProducts.amazon?.price || 'N/A',
-        amazonLink: matchedProducts.amazon?.link || null,
-        flipkartPrice: matchedProducts.flipkart?.price || 'N/A',
-        flipkartLink: matchedProducts.flipkart?.link || null,
-      };
+    // Store product data in localStorage synchronously
+    localStorage.setItem('selectedProduct', JSON.stringify(product));
 
-      console.log('Combined data:', combinedData);
-      setIsLoading(false);
-      // Open in new tab
-      const newWindow = window.open('/product-comparison', '_blank');
-      newWindow.state = { product: combinedData };
-    } catch (error) {
-      console.error('Error fetching platform data:', error);
-      setIsLoading(false);
-      navigate('/product-comparison', { 
-        state: { 
-          product: {
-            ...product,
-            platform: product.platform || 'unknown',
-            originalPrice: product.price,
-            originalLink: product.link
-          } 
-        } 
-      });
+    // Determine the route based on the product category
+    let route;
+    const currentUrl = window.location.pathname;
+    console.log('Current URL:', currentUrl);
+
+    if (currentUrl.includes('/category/beauty') || product.category === 'beauty') {
+      route = '/beauty-comparison';
+      console.log('Routing to beauty comparison');
+    } else if (product.category === 'travel') {
+      route = '/travel-comparison';
+      console.log('Routing to travel comparison');
+    } else {
+      route = '/product-comparison';
+      console.log('Routing to product comparison');
     }
+
+    console.log('Final route decision:', route);
+    console.log('Full URL to open:', `${window.location.origin}${route}`);
+
+    // Open the appropriate route in a new tab
+    window.open(`${window.location.origin}${route}`, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -77,11 +47,10 @@ const ProductCard = ({ product }) => {
       <h3 className="product-name">{product.name}</h3>
       <p className="product-price">{product.price}</p>
       <button 
-        onClick={handleViewProduct} 
-        className={`product-link ${isLoading ? 'loading' : ''}`}
-        disabled={isLoading}
+        onClick={handleViewProduct}
+        className="product-link"
       >
-        {isLoading ? 'Loading...' : 'Compare Prices'}
+        Compare Prices
       </button>
     </div>
   );

@@ -1,70 +1,62 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { searchAllPlatforms } from '../services/api';
 import './ProductComparison.css';
 
 const ProductComparison = () => {
-  const location = useLocation();
-  const { product } = location.state || {};
+  const [product, setProduct] = useState(null);
+  const [otherResult, setOtherResult] = useState(null);
 
-  const platforms = [
-    {
-      name: 'Amazon',
-      price: product?.amazonPrice || 'N/A',
-      link: product?.amazonLink
-    },
-    {
-      name: 'Flipkart',
-      price: product?.flipkartPrice || 'N/A',
-      link: product?.flipkartLink
+  useEffect(() => {
+    // Load product from localStorage
+    const stored = localStorage.getItem('selectedProduct');
+    if (stored) {
+      const prod = JSON.parse(stored);
+      setProduct(prod);
+      // Search the other platform if Flipkart or Amazon
+      if (prod.platform === 'flipkart' || prod.platform === 'amazon') {
+        searchAllPlatforms(prod.name, prod.platform).then(res => {
+          console.log('API Response:', res); // Log the API response for debugging
+          setOtherResult(res.otherPlatform[0] || null);
+        });
+      }
     }
-  ].filter(p => p.price !== 'N/A');
+  }, []);
 
-  // Find the lowest price
-  const getNumericPrice = (price) => {
-    return parseFloat(price.replace(/[₹,]/g, ''));
+  if (!product) return <div>Loading...</div>;
+
+  // Determine which is lower
+  const getPriceValue = (priceStr) => {
+    if (!priceStr) return Infinity;
+    return parseInt(priceStr.replace(/[^\d]/g, ''), 10);
   };
-
-  const lowestPricePlatform = platforms.reduce((min, p) => {
-    if (p.price === 'N/A') return min;
-    return getNumericPrice(p.price) < getNumericPrice(min.price) ? p : min;
-  }, platforms[0]);
-
-  const handleBuyNow = (platformUrl) => {
-    if (platformUrl) {
-      window.open(platformUrl, '_blank');
-    }
-  };
-
-  if (!product) {
-    return <div>No product data available</div>;
-  }
+  const productPrice = getPriceValue(product.price);
+  const otherPrice = getPriceValue(otherResult?.price);
+  const isProductLower = productPrice <= otherPrice;
 
   return (
     <div className="comparison-container">
       <div className="product-content">
         <div className="product-main">
-          <img src={product?.image} alt={product?.name} className="product-image" />
-          <h1 className="product-title">{product?.name}</h1>
+          <img src={product.image} alt={product.name} className="product-image" />
+          <h1 className="product-title">{product.name}</h1>
         </div>
-
-        <div className="price-overview">
-          <h2>Price Comparison</h2>
-          <div className="price-cards">
-            {platforms.map((platform) => (
-              <div 
-                key={platform.name} 
-                className={`price-card ${platform === lowestPricePlatform ? 'lowest-price' : ''}`}
-              >
-                <div className="platform-name">{platform.name}</div>
-                <div className="platform-price">{platform.price}</div>
-                <button
-                  onClick={() => handleBuyNow(platform.link)}
-                  className="view-btn"
-                >
-                  VIEW
-                </button>
-              </div>
-            ))}
+        <h2 style={{marginTop: 40}}>Price Comparison</h2>
+        <div className="price-cards" style={{display: 'flex', gap: 32, marginTop: 16}}>
+          {/* Original Platform */}
+          <div className={`price-card${isProductLower ? ' lowest-price' : ''}`} style={{flex: 1}}>
+            <div className="platform-name">{product.platform.charAt(0).toUpperCase() + product.platform.slice(1)}</div>
+            <div className="platform-price">{product.price || 'N/A'}</div>
+            {product.link && (
+              <a href={product.link} target="_blank" rel="noopener noreferrer" className="view-btn">VIEW</a>
+            )}
+          </div>
+          {/* Other Platform */}
+          <div className={`price-card${!isProductLower ? ' lowest-price' : ''}`} style={{flex: 1}}>
+            <div className="platform-name">{product.platform === 'flipkart' ? 'Amazon' : 'Flipkart'}</div>
+            <div className="platform-price">{otherResult?.price || 'N/A'}</div>
+            {otherResult?.link && (
+              <a href={otherResult.link} target="_blank" rel="noopener noreferrer" className="view-btn">VIEW</a>
+            )}
           </div>
         </div>
       </div>

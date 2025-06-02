@@ -23,8 +23,12 @@ const scrapeAmazon = async (query) => {
   const url = `https://www.amazon.in/s?k=${encodeURIComponent(query)}`;
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 0 });
 
+  // Log the page content for debugging
+  const pageContent = await page.content();
+  console.log('Page content loaded:', pageContent.slice(0, 500)); // Log first 500 characters
+
   // Give the client-side scripts time to render (can adjust as needed)
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  await new Promise(resolve => setTimeout(resolve, 3000));
 
   // Updated selector for product names
   const products = await page.evaluate(() => {
