@@ -4,7 +4,7 @@ const scrapeNykaa = async (query) => {
   if (!query) throw new Error("Missing search query");
 
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',

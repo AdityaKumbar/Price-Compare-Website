@@ -53,7 +53,7 @@ const ProductComparison = () => {
           {/* Other Platform */}
           <div className={`price-card${!isProductLower ? ' lowest-price' : ''}`} style={{flex: 1}}>
             <div className="platform-name">{product.platform === 'flipkart' ? 'Amazon' : 'Flipkart'}</div>
-            <div className="platform-price">{otherResult?.price || 'N/A'}</div>
+            <div className="platform-price">{otherResult?.price || 'Loading...'}</div>
             {otherResult?.link && (
               <a href={otherResult.link} target="_blank" rel="noopener noreferrer" className="view-btn">VIEW</a>
             )}

@@ -53,7 +53,7 @@ const BeautyComparison = () => {
           <div className={`price-card${isProductLower ? ' lowest-price' : ''}`} style={{ flex: 1 }}>
             <div className="platform-name">
               {product.platform.charAt(0).toUpperCase() + product.platform.slice(1)}
-              {isProductLower && <span className="best-price-badge">Best Price!</span>}
+              {isProductLower && <span className="best-price-badge"> Best Price!</span>}
             </div>
             <div className="platform-price">{product.price || 'N/A'}</div>
             {product.link && (
@@ -65,10 +65,10 @@ const BeautyComparison = () => {
           <div className={`price-card${!isProductLower && otherResult ? ' lowest-price' : ''}`} style={{ flex: 1 }}>
             <div className="platform-name">
               {product.platform === 'myntra' ? 'Nykaa' : 'Myntra'}
-              {!isProductLower && otherResult && <span className="best-price-badge">Best Price!</span>}
+              {!isProductLower && otherResult && <span className="best-price-badge"> Best Price!</span>}
             </div>
             <div className="platform-price">
-              {otherResult?.price || 'Not available'}
+              {otherResult?.price || 'Loading...'}
             </div>
             {otherResult?.link && (
               <a href={otherResult.link} target="_blank" rel="noopener noreferrer" className="view-btn">VIEW</a>

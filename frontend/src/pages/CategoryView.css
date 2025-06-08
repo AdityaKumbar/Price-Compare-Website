@@ -1,42 +1,48 @@
 .category-view {
-  padding: 20px;
-  font-family: Arial, sans-serif;
+  padding: 40px;
+  font-family: 'Inter', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
 }
 
 .category-view h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
+  font-size: 32px;
+  margin-bottom: 30px;
+  color: #222;
+  font-weight: 600;
 }
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px;
 }
 
 .search-form {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .search-input {
-  padding: 10px;
+  padding: 12px;
   font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 300px;
-  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 350px;
+  margin-right: 15px;
+  box-shadow: inset 2px 2px 5px #e0e0e0, inset -2px -2px 5px #ffffff;
 }
 
 .search-button {
-  padding: 10px 20px;
+  padding: 12px 25px;
   font-size: 16px;
   color: #fff;
   background-color: #007bff;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .search-button:hover {
@@ -112,4 +118,97 @@
   font-size: 14px;
   color: #555;
   margin-top: 5px;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 10px 20px;
+  border-bottom: 1px solid #ddd;
+  font-family: 'Inter', sans-serif;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.navbar-logo-text {
+  font-size: 20px;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links li button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.navbar-links li button:hover {
+  color: #007bff;
+}
+
+.home-button, .toggle-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.home-button:hover, .toggle-button:hover {
+  background-color: #0056b3;
+}
+
+.home-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Added styles for the loading animation */
+.loading-animation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  margin-top: 20px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

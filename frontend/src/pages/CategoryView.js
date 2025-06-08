@@ -135,8 +135,21 @@ const CategoryView = () => {
 
   return (
     <div className="category-view">
+      <nav className="navbar">
+        <div className="navbar-logo" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
+          <img src="/home.svg" alt="Logo" className="navbar-logo-icon" />
+          <span className="navbar-logo-text">Price Compare</span>
+        </div>
+        <ul className="navbar-links">
+          {platform === 'beauty' ? (
+            <li><button onClick={() => navigate('/category/products')}>Products</button></li>
+          ) : (
+            <li><button onClick={() => navigate('/category/beauty')}>Beauty</button></li>
+          )}
+          <li><button onClick={() => navigate('/AboutUs')}>About Us</button></li>
+        </ul>
+      </nav>
       <h2>Search in {platform}</h2>
-      <button onClick={() => navigate('/')}>Go Back to Home</button>
       <form onSubmit={handleSearch} className="search-form">
         <input
           type="text"
@@ -170,7 +183,12 @@ const CategoryView = () => {
         </div>
       )}
       <FilterBar onFilterChange={handleFilterChange} />
-      {loading && <p>Loading...</p>}
+      {loading && (
+        <div className="loading-animation">
+          <div className="spinner"></div>
+          <p>Loading...</p>
+        </div>
+      )}
       {error && <p>Error: {error}</p>}
       <div className={`product-grid ${displayMode}`}> {/* Add dynamic class for styling */}
         {processedProducts.map((product, index) => (

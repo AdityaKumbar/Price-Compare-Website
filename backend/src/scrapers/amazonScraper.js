@@ -4,7 +4,7 @@ const scrapeAmazon = async (query) => {
   if (!query) throw new Error("Missing search query");
 
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -15,6 +15,14 @@ const scrapeAmazon = async (query) => {
 
   const page = await browser.newPage();
 
+  await page.setExtraHTTPHeaders({
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Referer': 'https://www.google.com/',
+    'DNT': '1', // Do Not Track
+  });
+
+
+  // Add additional headers to mimic a real browser
   await page.setUserAgent(
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
     '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
