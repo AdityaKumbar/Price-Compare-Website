@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://price-compare-backend-hqsi.onrender.com';
+const API_BASE_URL = 'https://price-compare-backend-hqsi.onrender.com/api';
 
 // Fetch products from a specific scraper
 export const fetchProducts = async (platform, query) => {
