@@ -9,14 +9,29 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-// Middleware
-app.use(cors());
+// ✅ CORS Configuration: Allow only your frontend
+const allowedOrigins = [
+  'http://localhost:3000', // For local development
+  'https://price-compare-website.vercel.app' // Your deployed frontend
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like Postman) or allowed origins
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Routes
 app.use('/api/products', require('./routes/products'));
-
-// Scrapers routes
 app.use('/api/scrapers', require('./routes/scrapers'));
 
 // Default route for root path
